@@ -1,0 +1,46 @@
+#过滤
+        {$match:{'content.flowType':'grantExamine'}},//筛选
+        {$match:{'content.formData.chargeList':{$ne:[]}}},//不为空
+        {$match:{'content.formData.chargeList':{$exists:true}}},//存在
+
+#关联表
+        {$lookup: {
+                from: 'contract_loan_info_res',
+                localField: 'content.quotationId',
+                foreignField: 'uniqueId',
+                as: 'loan'}}, 
+
+#把列表分开并且添加不同的标识，用于以后生成独有的id
+        {$unwind: {
+                path: '$content.formData.amortList',
+                preserveNullAndEmptyArrays: true,
+                includeArrayIndex: 'content.formData.amortList.idx'}},
+
+        {$unwind: {'$content.formData.amort'}//单纯分割
+        
+
+#拼接两个字段，记得中间加'_'
+        'id': {$concat: 
+                [{$toString: '$_id'}, '_', {$toString: '$content.formData.idx'}]
+                },
+
+#添加非空判断
+        'rateStart':{'$ifNull':['$debt.rateStartCode','']},
+
+#取列表的第一个元素
+        'rateStart':{$arrayElemAt:['$collectedPrincipal',0]} ,
+
+ #限制条数
+        {$limit:1000},       
+
+#聚合多个数组列表以Document对象格式输出
+        'extInfo':{$arrayToObject: {
+                        $literal: [
+                                {k: 'id',v:'createdUserId'},
+                                {k: 'typeName',v:'typeName123'}
+                        ]}},
+
+#将对象转为字符串格式=版本可能不适用
+        catalogId:{$convert: { 
+                        input: '$content.formData.catalogId',
+                        to: "string", onError:"onErrorExpr", onNull:"onNullExpr"}},		

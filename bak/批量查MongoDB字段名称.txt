@@ -1,0 +1,27 @@
+//查询MongoDB数据库集合的全部字段名称
+var col='project_quotation_info';//请输入集合名称
+var children='$content.formData';//请输入查询的子字段名称
+
+
+try{
+    var flash=db.getCollection(col);
+    var doc=flash.findOne();
+    var keys=Object.keys(doc);
+    for (var i=0;i < keys.length;i++){
+        print(keys[i])
+    }
+    var pipeline=[
+        {$project:{content:{$objectToArray: children}}},
+        {$unwind:"$content"},
+        {$group: { _id: null,subkey:{$addToSet: "$content.k"}}}];
+    var result=flash.aggregate(pipeline);//此处修改集合名称
+    var subkeys=result.toArray()[0].subkey;
+    for (var i=0;i < subkeys.length;i++){
+        // print(subkeys[i]);           //不带父节点
+        print(children+'.'+subkeys[i])//带父节点
+    }
+}catch(error){
+    print("失败，出现异常");
+    print("如果只输出了父子段，那么就是子字段位置写错了，什么都没输出就是表名不存在")
+}
+

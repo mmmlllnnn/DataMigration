@@ -1,0 +1,73 @@
+
+# import pymongo
+# from os import sep
+# from time import perf_counter
+# mongodb://my_user:password123@192.168.102.101:27017
+# customer_manage_info
+# project_quotation_info
+# project_risk_info
+# flash={}#结果
+# print(result)
+# 		 interestVAT: {
+# 				$arrayElemAt: ["$content.debt.interestVAT",0]
+# 			},
+class Dict:
+    # global result
+    # result = []
+    def __init__(self, dictionary):
+        self.dictionary = dictionary
+        father = []
+
+    def main(self, dictionary=None, father=None):
+        if dictionary is None:
+            dictionary = self.dictionary
+            father = []
+        for key, value in dictionary.items():
+            if isinstance(value, list):
+                if (len(value) > 0) & (type(value[0]) == dict):
+                    father.append(key)
+                    # print("是列表，进入",key)
+                    # if type(value[0])==dict:
+                    self.main(value[0], father)
+                    father.remove(key)
+                    # print("从列表返回",key)
+                if (len(value) > 0) & (type(value[0]) != dict):
+                    print("     ", key, ":'$", sep='', end='')
+                    print(*father, key, sep='.', end='')
+                    print("',")
+            elif isinstance(value, dict):
+                father.append(key)
+                # print("是字典，进入",key)
+                self.main(value, father)
+                father.remove(key)
+                # print("从字典返回",key)
+            else:
+                # result[key]=(*father, key)
+                a=(*father,)
+                print(a,type(key))
+                # print(*father,key,"为:",value,sep='.')
+                # print("     ", key, ":'$", sep='', end='')
+                # print(*father, key, sep='.', end='')
+                # print("',")
+        # return result
+# client=pymongo.MongoClient('mongodb://localhost:27017')
+# db=client.huitong
+# collection=db.test
+# result=collection.find_one()#得到了一个全体结构的字典====解析它
+# # print("db.",collection.name,".aggregate(",sep='')
+# # print("{")
+# # print("     $project:{")
+# dt=Dict(result)
+# dt.main()
+# print("}})")
+
+db.collection.aggregate(
+     $project:
+     {'_id': '$_id',
+     'schemaUniqueCode': '$schemaUniqueCode',
+     'contractId': '$content.contractId',
+     }
+     $project:{
+
+     },
+)
