@@ -1,0 +1,2 @@
+# DataMigration
+MongoDB转Mysql，分别连接两个数据库中的表，根据字段名称相似度自动匹配。然后生成Match语句，用于MongoDB数据库迁移到Mysql。
